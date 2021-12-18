@@ -16,3 +16,19 @@ export function addCondition(data){
     data
   })
 }
+
+export function editCondition(data) {
+  return request({
+    url: '/condition',
+    method: "put",
+    data
+  })
+}
+
+export function deleteCondition(data) {
+  return request({
+    url: '/condition',
+    method: "delete",
+    data
+  })
+}

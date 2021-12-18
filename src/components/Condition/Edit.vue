@@ -1,14 +1,15 @@
 <template>
   <div>
-      <quill-editor
-        ref="myQuillEditor"
-        v-model="content"
-        :options="editorOption"
-        @blur="onEditorBlur($event)"
-        @focus="onEditorFocus($event)"
-        @ready="onEditorReady($event)"
-        class="quill-edit"
-      ></quill-editor>
+    <quill-editor
+      ref="myQuillEditor"
+      v-model="content"
+      :options="editorOption"
+      @blur="onEditorBlur($event)"
+      @focus="onEditorFocus($event)"
+      @ready="onEditorReady($event)"
+      @change="onEditorChange($event)"
+      class="quill-edit"
+    ></quill-editor>
   </div>
 </template>
 
@@ -22,19 +23,20 @@ import { addQuillTitle } from "@/utils/quill-title";
 
 import { ImageExtend, QuillWatch } from "quill-image-extend-module";
 
-import {getToken} from '@/utils/auth'
+import { getToken } from "@/utils/auth";
 
 Quill.register("modules/ImageExtend", ImageExtend);
 
 export default {
   name: "QuillText",
+  props: { contentText: String },
   components: {
     quillEditor,
   },
   data() {
     return {
       // 富文本数据
-      content: '',
+      content: "",
       // 富文本编辑器配置
       editorOption: {
         modules: {
@@ -42,28 +44,24 @@ export default {
             loading: true,
             name: "file",
             size: 2,
-            action: "http://localhost:5003/api/upload",
+            action: process.env.VUE_APP_BASE_API + "/upload",
             response: (res) => {
               // return this.getUrl + res.key;
-              console.log(res)
+              console.log(res);
             },
-            headers: (xhr,formData) => {
-              xhr.setRequestHeader(
-                "Authorization",
-                getToken("token")
-              );
-
+            headers: (xhr, formData) => {
+              xhr.setRequestHeader("Authorization", getToken("token"));
             }, // 可选参数 设置请求头部
-            change: (xhr, formData) => {
-              formData.append(
-                "token",
-                window.sessionStorage.getItem("qiniuToken")
-              );
-              formData.append(
-                "key",
-                `upload_pic_${new Date().getTime()}_huahan`
-              );
-            },
+            // change: (xhr, formData) => {
+            //   formData.append(
+            //     "token",
+            //     window.sessionStorage.getItem("qiniuToken")
+            //   );
+            //   formData.append(
+            //     "key",
+            //     `upload_pic_${new Date().getTime()}_huahan`
+            //   );
+            // },
             sizeError: () => {
               return this.$message.error("图片超过5M");
             }, // 图片超过大小的回调
@@ -95,6 +93,14 @@ export default {
       },
     };
   },
+  watch: {
+    contentText: {
+      handler() {
+        this.content = this.contentText;
+      },
+      immediate: true,
+    },
+  },
   mounted() {
     addQuillTitle();
   },
@@ -114,8 +120,9 @@ export default {
     },
     //内容改变事件
     onEditorChange({ quill, html, text }) {
-      console.log("editor change!", quill, html, text);
+      // console.log("editor change!", quill, html, text);
       this.content = html;
+      this.$emit("getContent", this.content);
     },
   },
 };
@@ -125,5 +132,4 @@ export default {
 ::v-deep .quill-edit .ql-editor {
   height: 300px;
 }
-
 </style>
