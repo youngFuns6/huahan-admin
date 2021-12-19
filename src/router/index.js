@@ -68,21 +68,21 @@ export const constantRoutes = [
   {
     path: '/goods',
     component: Layout,
-    redirect: '/goods/type',
+    redirect: '/goods/cate',
     name: 'Goods',
-    meta: { title: '商品管理', icon: 'nested' },
+    meta: { title: '产品管理', icon: 'nested' },
     children: [
       {
-        path: 'type',
-        name: 'Type',
-        component: () => import('@/views/type/index'),
-        meta: { title: '商品分类', icon: 'table' }
+        path: 'cate',
+        name: 'Cate',
+        component: () => import('@/views/cate/index'),
+        meta: { title: '产品分类', icon: 'table' }
       },
       {
         path: 'list',
         name: 'list',
         component: () => import('@/views/list/index'),
-        meta: { title: '商品列表', icon: 'tree' }
+        meta: { title: '产品列表', icon: 'tree' }
       }
     ]
   },
@@ -90,21 +90,12 @@ export const constantRoutes = [
   {
     path: '/info',
     component: Layout,
-    redirect: '/info/seo',
-    name: 'Info',
-    meta: { title: '信息管理', icon: 'el-icon-s-help' },
     children: [
       {
-        path: 'seo',
-        name: 'Seo',
-        component: () => import('@/views/seo/index'),
-        meta: { title: 'SEO优化', icon: 'table' }
-      },
-      {
-        path: 'contact',
-        name: 'Contact',
+        path: 'index',
+        name: '',
         component: () => import('@/views/contact/index'),
-        meta: { title: '网站信息', icon: 'tree' }
+        meta: { title: '信息管理', icon: 'table' }
       }
     ]
   },
@@ -117,7 +108,7 @@ export const constantRoutes = [
         path: 'index',
         name: 'Feedback',
         component: () => import('@/views/feedback/index'),
-        meta: { title: '网站反馈', icon: 'form' }
+        meta: { title: '反馈信息', icon: 'form' }
       }
     ]
   },

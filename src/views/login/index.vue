@@ -1,11 +1,16 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
-
+    <el-form
+      ref="loginForm"
+      :model="loginForm"
+      :rules="loginRules"
+      class="login-form"
+      auto-complete="on"
+      label-position="left"
+    >
       <div class="title-container">
         <h3 class="title">华瀚官网后台管理系统</h3>
       </div>
-
       <el-form-item prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
@@ -13,7 +18,7 @@
         <el-input
           ref="username"
           v-model="loginForm.username"
-          placeholder="Username"
+          placeholder="用户名"
           name="username"
           type="text"
           tabindex="1"
@@ -30,89 +35,163 @@
           ref="password"
           v-model="loginForm.password"
           :type="passwordType"
-          placeholder="Password"
+          :placeholder="passwordStatus ? '请输入旧密码' : '请输入密码'"
           name="password"
           tabindex="2"
           auto-complete="on"
           @keyup.enter.native="handleLogin"
         />
         <span class="show-pwd" @click="showPwd">
-          <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+          <svg-icon
+            :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"
+          />
+        </span>
+      </el-form-item>
+      <el-form-item prop="newPassword" v-if="passwordStatus">
+        <span class="svg-container">
+          <svg-icon icon-class="password" />
+        </span>
+        <el-input
+          :key="passwordType"
+          ref="password"
+          v-model="loginForm.newPassword"
+          :type="passwordType"
+          :placeholder="passwordStatus ? '请输入新密码' : ''"
+          name="password"
+          tabindex="2"
+          auto-complete="on"
+          @keyup.enter.native="handleLogin"
+        />
+        <span class="show-pwd" @click="showPwd">
+          <svg-icon
+            :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"
+          />
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
-
+      <div class="btn">
+        <div class="setPassword">
+          <el-link @click="useNewpassword">{{
+            passwordStatus ? "返回登录" : "修改密码"
+          }}</el-link>
+        </div>
+        <el-button
+          :loading="loading"
+          type="primary"
+          style="width: 100%; margin-bottom: 30px"
+          @click.native.prevent="handleLogin"
+          >{{ passwordStatus ? "修改密码" : "登录" }}</el-button
+        >
+      </div>
     </el-form>
   </div>
 </template>
 
 <script>
-
+import { setPassword } from "@/api/user";
 
 export default {
-  name: 'Login',
+  name: "Login",
   data() {
     return {
+      passwordStatus: false,
       loginForm: {
-        username: 'admin',
-        password: 'huahan2021'
+        username: "admin",
+        password: "huahan2021",
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', message: "用户名不能为空" }],
-        password: [{ required: true, trigger: 'blur', message: "密码不能为空" }]
+        username: [
+          { required: true, trigger: "blur", message: "用户名不能为空" },
+        ],
+        password: [
+          { required: true, trigger: "blur", message: "密码不能为空" },
+        ],
+        newPassword: [
+          { required: true, message: "请输入新密码", trigger: "blur" },
+          {
+            min: 8,
+            max: 16,
+            message: "长度在 8 到 16 个字符",
+            trigger: "blur",
+          },
+        ],
       },
       loading: false,
-      passwordType: 'password',
-      redirect: undefined
-    }
+      passwordType: "password",
+      redirect: undefined,
+    };
   },
   watch: {
     $route: {
-      handler: function(route) {
-        this.redirect = route.query && route.query.redirect
+      handler: function (route) {
+        this.redirect = route.query && route.query.redirect;
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   methods: {
     showPwd() {
-      if (this.passwordType === 'password') {
-        this.passwordType = ''
+      if (this.passwordType === "password") {
+        this.passwordType = "";
       } else {
-        this.passwordType = 'password'
+        this.passwordType = "password";
       }
       this.$nextTick(() => {
-        this.$refs.password.focus()
-      })
+        this.$refs.password.focus();
+      });
     },
     handleLogin() {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
-            console.log(this.redirect)
-            this.$router.push({ path: this.redirect || '/' })
-            this.loading = false
-          }).catch(() => {
-            this.loading = false
-          })
-        } else {
-          console.log('error submit!!')
-          return false
-        }
-      })
-    }
-  }
-}
+      if (!this.passwordStatus) {
+        this.$refs.loginForm.validate((valid) => {
+          if (valid) {
+            this.loading = true;
+            this.$store
+              .dispatch("user/login", this.loginForm)
+              .then(() => {
+                console.log(this.redirect);
+                this.$router.push({ path: this.redirect || "/" });
+                this.loading = false;
+              })
+              .catch(() => {
+                this.loading = false;
+              });
+          } else {
+            console.log("error submit!!");
+            return false;
+          }
+        });
+      } else {
+        this.$refs.loginForm.validate((valid) => {
+          if (!valid) return this.$message.error("请输入有效内容");
+          this.loading = true;
+          setPassword(this.loginForm)
+            .then((res) => {
+              console.log(res)
+              this.loading = false;
+              this.loginForm = res.data
+              this.passwordStatus = false;
+              this.$message.success("修改密码成功，请重新登陆");
+            })
+            .catch(() => {
+              this.loading = false;
+            });
+        });
+      }
+    },
+
+    useNewpassword() {
+      this.passwordStatus = !this.passwordStatus;
+    },
+  },
+};
 </script>
 
 <style lang="scss">
 /* 修复input 背景不协调 和光标变色 */
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
 
-$bg:#283443;
-$light_gray:#fff;
+$bg: #283443;
+$light_gray: #fff;
 $cursor: #fff;
 
 @supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
@@ -155,9 +234,9 @@ $cursor: #fff;
 </style>
 
 <style lang="scss" scoped>
-$bg:#2d3a4b;
-$dark_gray:#889aa4;
-$light_gray:#eee;
+$bg: #2d3a4b;
+$dark_gray: #889aa4;
+$light_gray: #eee;
 
 .login-container {
   min-height: 100%;
@@ -215,5 +294,10 @@ $light_gray:#eee;
     cursor: pointer;
     user-select: none;
   }
+}
+.setPassword {
+  text-align: right;
+  margin-bottom: 10px;
+  margin-right: 20px;
 }
 </style>

@@ -5,8 +5,8 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 const getDefaultState = () => {
   return {
     token: getToken(),
-    name: '',
-    avatar: ''
+    // name: '',
+    // avatar: ''
   }
 }
 
@@ -29,8 +29,8 @@ const actions = {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
         commit('SET_TOKEN', data.token)
-        commit('SET_NAME', data.username)
-        commit('SET_AVATAR', '')
+        // commit('SET_NAME', '华翰')
+        // commit('SET_AVATAR', '')
         setToken(data.token)
         resolve()
       }).catch(error => {

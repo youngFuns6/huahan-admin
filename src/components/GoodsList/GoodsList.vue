@@ -1,7 +1,24 @@
 <template>
   <el-card>
-    <el-button type="primary" @click="useAddDialog"> 新增动态 </el-button>
+    <el-button type="primary" @click="useAddDialog"> 新增产品 </el-button>
+    <el-select
+      @change="cateChange"
+      v-model="GoodsForm.type"
+      placeholder="请选择分类"
+    >
+      <el-option
+        v-for="item in goodsCate"
+        :key="item.type"
+        :value="item.type"
+        :label="item.cateName"
+      ></el-option>
+    </el-select>
     <el-table :data="list" border stripe>
+      <el-table-column label="所属分类">
+        <template #default="scope">
+          <span>{{ scope.row.cateName }}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="title" label="标题"></el-table-column>
       <el-table-column label="封面">
         <template #default="scope">
@@ -23,16 +40,13 @@
       <el-table-column prop="updated" label="更新时间"></el-table-column>
       <el-table-column label="操作" width="180px">
         <template #default="scope">
-          <el-button
-            type="primary"
-            size="mini"
-            @click="useEditCondition(scope.row)"
+          <el-button type="primary" size="mini" @click="useEditGoods(scope.row)"
             >编辑</el-button
           >
           <el-button
             type="danger"
             size="mini"
-            @click="useDeleteCondition(scope.row.id)"
+            @click="useDeleteGoods(scope.row.id)"
             >删除</el-button
           >
         </template>
@@ -53,19 +67,23 @@
         <el-form
           label-position="right"
           label-width="100px"
-          :model="conditionForm"
-          ref="conditionRef"
-          :rules="conditionRules"
+          :model="GoodsForm"
+          ref="GoodsRef"
+          :rules="GoodsRules"
           class="demo-ruleForm"
         >
-          <!-- <el-form-item label="类型" prop="type">
-            <el-select v-model="conditionForm.type" placeholder="请选择分类">
-              <el-option :value="1" label="企业动态"></el-option>
-              <el-option :value="2" label="行业资讯"></el-option>
+          <el-form-item label="类型" prop="type">
+            <el-select v-model="GoodsForm.type" placeholder="请选择分类">
+              <el-option
+                v-for="item in goodsCate"
+                :key="item.type"
+                :value="item.type"
+                :label="item.cateName"
+              ></el-option>
             </el-select>
-          </el-form-item> -->
+          </el-form-item>
           <el-form-item label="标题" prop="title">
-            <el-input v-model="conditionForm.title"></el-input>
+            <el-input v-model="GoodsForm.title"></el-input>
           </el-form-item>
           <el-form-item label="封面图片" prop="banner">
             <el-upload
@@ -94,14 +112,14 @@
           <el-form-item label="内容">
             <Edit
               @getContent="getContent"
-              :contentText="conditionForm.content"
+              :contentText="GoodsForm.content"
             ></Edit>
           </el-form-item>
         </el-form>
       </span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancel">取 消</el-button>
-        <el-button type="primary" @click="useAddCondition">确 定</el-button>
+        <el-button type="primary" @click="useAddGoods">确 定</el-button>
       </span>
     </el-dialog>
   </el-card>
@@ -110,17 +128,17 @@
 <script>
 import { mapGetters } from "vuex";
 import {
-  addCondition,
-  getCondition,
-  editCondition,
-  deleteCondition,
-} from "@api/condition";
+  addGoods,
+  getGoods,
+  editGoods,
+  deleteGoods,
+  getGoodsCate,
+} from "@api/goods";
 import Edit from "@/components/Edit/Edit.vue";
 import { getToken } from "@/utils/auth";
 
 export default {
-  name: "Condition",
-  props: { type: Number },
+  name: "GoodsList",
   components: {
     Edit,
   },
@@ -129,20 +147,21 @@ export default {
       BASE_API: process.env.VUE_APP_BASE_API + "/upload",
       token: getToken("token"),
       queryInfo: {
-        type: this.type,
+        type: null,
         page: 1,
         pageSize: 10,
       },
       list: [],
+      goodsCate: [],
       total: null,
-      conditionForm: {
-        type: this.type,
+      GoodsForm: {
+        type: null,
         banner: "",
       },
       fileList: [],
       bannerUrl: "",
       dialogVisible: false,
-      conditionRules: {
+      GoodsRules: {
         // type: [
         //   { required: true, message: '必填项', trigger: 'blur' },
         // ],
@@ -151,53 +170,91 @@ export default {
         ],
         banner: [{ required: true, message: "必填项", trigger: "change" }],
       },
-      isAddConditionForm: true,
+      isAddGoodsForm: true,
     };
   },
+  // filters: {
+  //   filterCate(val, goodsCate) {
+  //     goodsCate.forEach((item) => {
+  //       if (val == item.type) {
+  //         console.log(item.cateName);
+  //         return item.cateName;
+  //       }
+  //     });
+  //   }
+  // },
   computed: {
     ...mapGetters(["name"]),
   },
   created() {
-    this.useGetCondition();
+    this.useGetGoods();
   },
   methods: {
-    async useGetCondition() {
-      const res = await getCondition(this.queryInfo);
-      this.list = res.data;
+    async useGetGoods() {
+      const res = await getGoods(this.queryInfo);
+      if (res.code !== 200) {
+        return this.$message.error("获取产品列表失败");
+      }
       this.total = res.total;
+      this.useGetGoodsCate().then((goodsCate) => {
+        res.data.forEach((item) => {
+          goodsCate.forEach((cate) => {
+            if (item.type == cate.type) {
+              item.cateName = cate.cateName;
+            }
+          });
+        });
+        this.list = res.data;
+        // console.log(this.list);
+      });
+      
+    },
+    useGetGoodsCate() {
+      return new Promise(async (resolve, reject) => {
+        const res = await getGoodsCate();
+        if (res.code !== 200) {
+          reject();
+          return this.$message.error("获取产品分类失败");
+        }
+        this.goodsCate = res.data;
+        resolve(res.data);
+      });
     },
     useAddDialog() {
-      this.conditionForm = {
+      this.GoodsForm = {
         type: this.type,
         banner: "",
       };
       this.fileList = [];
       this.dialogVisible = true;
-      this.isAddConditionForm = true;
+      this.isAddGoodsForm = true;
     },
-    async useAddCondition() {
-      if (this.isAddConditionForm) {
-        this.$refs.conditionRef.validate(async (valid) => {
+    async useAddGoods() {
+      if (this.isAddGoodsForm) {
+        this.$refs.GoodsRef.validate(async (valid) => {
           if (!valid) return this.$message.error("请填写必填项");
-          const res = await addCondition(this.conditionForm);
+          const res = await addGoods(this.GoodsForm);
           console.log(res);
           if (res.code !== 200) return this.$message.error("添加失败");
           this.$message.success("添加成功");
-          this.useGetCondition();
+          this.useGetGoods();
+           this.GoodsForm = {}
           this.dialogVisible = false;
         });
       } else {
-        const res = await editCondition(this.conditionForm);
+        const res = await editGoods(this.GoodsForm);
         if (res.code !== 200) return this.$message.error("编辑失败");
         this.$message.success("编辑成功");
-        this.useGetCondition();
+        this.useGetGoods();
+         this.GoodsForm = {}
         this.dialogVisible = false;
       }
     },
-    useEditCondition(row) {
+    useEditGoods(row) {
       console.log(row);
-      this.isAddConditionForm = false;
-      this.conditionForm = row;
+      delete row.cateName
+      this.isAddGoodsForm = false;
+      this.GoodsForm = row;
       this.fileList = row.banner
         ? [
             {
@@ -208,16 +265,16 @@ export default {
         : [];
       this.dialogVisible = true;
     },
-    useDeleteCondition(id) {
-      this.$confirm("此操作将永久删除该文章, 是否继续?", "提示", {
+    useDeleteGoods(id) {
+      this.$confirm("此操作将永久删除该产品, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       })
         .then(async () => {
-          const res = await deleteCondition({ id });
+          const res = await deleteGoods({ id });
           if (res.code !== 200) return this.$message.error("删除失败");
-          this.useGetCondition();
+          this.useGetGoods();
           this.$message({
             type: "success",
             message: "删除成功!",
@@ -231,8 +288,8 @@ export default {
         });
     },
     beforeUpload(file) {
-      if (!this.conditionForm.type && !this.conditionForm.title) {
-        this.$message.error("请先选择分类");
+      if (!this.GoodsForm.type && !this.GoodsForm.title) {
+        this.$message.error("请先填写分类与标题");
         return false;
       }
       const isPNG = file.type === "image/png";
@@ -250,11 +307,11 @@ export default {
       }
     },
     async handleRemove(file, fileList) {
-      this.conditionForm.banner = "";
+      this.GoodsForm.banner = "";
     },
     handlesuccess(response, file) {
       // console.log(response)
-      this.conditionForm.banner = response.data;
+      this.GoodsForm.banner = response.data;
       //   console.log(file)
     },
     uploadError() {
@@ -265,12 +322,12 @@ export default {
       });
     },
     getContent(content) {
-      this.conditionForm.content = content;
+      this.GoodsForm.content = content;
     },
     cancel() {
       this.dialogVisible = false;
-      if (!this.isAddConditionForm) {
-        this.conditionForm = {
+      if (!this.isAddGoodsForm) {
+        this.GoodsForm = {
           type: this.type,
           banner: "",
         };
@@ -279,11 +336,15 @@ export default {
     },
     // handleSizeChange(size){
     //     this.queryInfo.pageSize = size
-    //     this.useGetCondition()
+    //     this.useGetGoods()
     // },
     handleCurrentChange(page) {
       this.queryInfo.page = page;
-      this.useGetCondition();
+      this.useGetGoods();
+    },
+    cateChange(value) {
+      this.queryInfo.type = value;
+      this.useGetGoods();
     },
   },
 };

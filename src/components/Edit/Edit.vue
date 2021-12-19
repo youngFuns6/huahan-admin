@@ -46,8 +46,8 @@ export default {
             size: 2,
             action: process.env.VUE_APP_BASE_API + "/upload",
             response: (res) => {
-              // return this.getUrl + res.key;
-              console.log(res);
+              return res.data;
+              // console.log(res);
             },
             headers: (xhr, formData) => {
               xhr.setRequestHeader("Authorization", getToken("token"));
