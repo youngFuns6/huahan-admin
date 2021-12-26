@@ -62,7 +62,7 @@
       </el-pagination>
     </div>
     <!-- 文章 -->
-    <el-dialog title="文章管理" :visible.sync="dialogVisible" width="70%">
+    <el-dialog destroy-on-close title="文章管理" :visible.sync="dialogVisible" width="70%">
       <span>
         <el-form
           label-position="right"

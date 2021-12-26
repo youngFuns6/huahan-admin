@@ -1,5 +1,6 @@
 import { login } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
+// import {}
 // import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
@@ -27,6 +28,7 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
+        if(response.code !== 200) return
         const { data } = response
         commit('SET_TOKEN', data.token)
         // commit('SET_NAME', '华翰')

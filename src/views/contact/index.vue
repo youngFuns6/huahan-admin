@@ -19,7 +19,34 @@
           <el-input type="textarea" v-model="form.webDesc"></el-input>
         </el-form-item>
         <el-form-item label="电话号码">
-          <el-input v-model="form.phone"></el-input>
+          <el-input v-model="form.phone" placeholder="多个手机号之间请用‘/’隔开"></el-input>
+        </el-form-item>
+        <el-form-item label="短信">
+          <el-input v-model="form.message"></el-input>
+        </el-form-item>
+        <el-form-item label="微信二维码">
+          <el-upload
+            :action="BASE_API"
+            class="upload-demo"
+            drag
+            auto-upload
+            :on-success="handlesuccessQr"
+            :before-upload="beforeUpload"
+            :on-remove="handleRemoveQr"
+            :on-error="uploadError"
+            :limit="1"
+            :file-list="fileCompListQr"
+            list-type="picture"
+            :headers="{ Authorization: token }"
+          >
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">拖拽上传或 <em>点击上传</em></div>
+            <template #tip>
+              <div class="el-upload__tip">
+                上传二维码只能是 jpg、png、jpeg 格式! 且不超过5MB
+              </div>
+            </template>
+          </el-upload>
         </el-form-item>
         <el-form-item label="邮箱">
           <el-input v-model="form.email"></el-input>
@@ -29,6 +56,9 @@
         </el-form-item>
         <el-form-item label="邮编">
           <el-input v-model="form.emailNum"></el-input>
+        </el-form-item>
+        <el-form-item label="公司地址">
+          <el-input v-model="form.address"></el-input>
         </el-form-item>
         <el-form-item label="公司展示大图">
           <el-upload
@@ -50,7 +80,7 @@
             <div class="el-upload__text">拖拽上传或 <em>点击上传</em></div>
             <template #tip>
               <div class="el-upload__tip">
-                上传头像图片只能是 jpg、png、jpeg 格式! 且不超过5MB
+                上传图片只能是 jpg、png、jpeg 格式! 且不超过5MB
               </div>
             </template>
           </el-upload>
@@ -107,6 +137,7 @@ export default {
       token: getToken("token"),
       form: {
         compImg: "",
+        qrCode: ''
       },
       rules: {
         webTitle: [{ required: true, message: "必填项", trigger: "blur" }],
@@ -114,6 +145,7 @@ export default {
         webDesc: [{ required: true, message: "必填项", trigger: "blur" }],
       },
       fileCompList: [],
+      fileCompListQr: [],
       // fileHonorList: [],
       dialogVisible: false,
     };
@@ -126,6 +158,7 @@ export default {
       const res = await getWebInfo();
       this.form = res.data;
       this.fileCompList = [{ name: "展示大图", url: res.data.compImg }];
+      this.fileCompListQr = [{ name: "微信二维码", url: res.data.qrCode }];
     },
 
     beforeUpload(file) {
@@ -152,11 +185,21 @@ export default {
       //   console.log(file)
     },
     uploadError() {
+      
       this.$message({
         message: "上传出错，请重试！",
         type: "error",
         center: true,
       });
+    },
+
+    async handleRemoveQr() {
+      this.form.qrCode = "";
+    },
+    handlesuccessQr(response) {
+      // console.log(response)
+      this.form.qrCode = response.data;
+      //   console.log(file)
     },
 
     useEditWebInfo() {
