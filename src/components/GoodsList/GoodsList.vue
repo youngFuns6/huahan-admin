@@ -13,7 +13,9 @@
         :label="item.cateName"
       ></el-option>
     </el-select>
-    <el-table :data="list" border stripe>
+    <el-table :data="list" border stripe @select='selectTop'>
+      <el-table-column label="任选三个置顶" type="selection" width="55">
+      </el-table-column>
       <el-table-column label="所属分类">
         <template #default="scope">
           <span>{{ scope.row.cateName }}</span>
@@ -38,7 +40,7 @@
       </el-table-column>
       <el-table-column prop="created" label="创建时间"></el-table-column>
       <el-table-column prop="updated" label="更新时间"></el-table-column>
-      <el-table-column label="操作" width="180px">
+      <el-table-column label="操作" width="220px">
         <template #default="scope">
           <el-button type="primary" size="mini" @click="useEditGoods(scope.row)"
             >编辑</el-button
@@ -62,7 +64,12 @@
       </el-pagination>
     </div>
     <!-- 文章 -->
-    <el-dialog destroy-on-close title="文章管理" :visible.sync="dialogVisible" width="70%">
+    <el-dialog
+      destroy-on-close
+      title="文章管理"
+      :visible.sync="dialogVisible"
+      width="70%"
+    >
       <span>
         <el-form
           label-position="right"
@@ -133,6 +140,7 @@ import {
   editGoods,
   deleteGoods,
   getGoodsCate,
+  topGoods,
 } from "@api/goods";
 import Edit from "@/components/Edit/Edit.vue";
 import { getToken } from "@/utils/auth";
@@ -171,6 +179,7 @@ export default {
         banner: [{ required: true, message: "必填项", trigger: "change" }],
       },
       isAddGoodsForm: true,
+      selectTopList: null
     };
   },
   // filters: {
@@ -207,7 +216,6 @@ export default {
         this.list = res.data;
         // console.log(this.list);
       });
-      
     },
     useGetGoodsCate() {
       return new Promise(async (resolve, reject) => {
@@ -238,7 +246,7 @@ export default {
           if (res.code !== 200) return this.$message.error("添加失败");
           this.$message.success("添加成功");
           this.useGetGoods();
-           this.GoodsForm = {}
+          this.GoodsForm = {};
           this.dialogVisible = false;
         });
       } else {
@@ -246,13 +254,13 @@ export default {
         if (res.code !== 200) return this.$message.error("编辑失败");
         this.$message.success("编辑成功");
         this.useGetGoods();
-         this.GoodsForm = {}
+        this.GoodsForm = {};
         this.dialogVisible = false;
       }
     },
     useEditGoods(row) {
       console.log(row);
-      delete row.cateName
+      delete row.cateName;
       this.isAddGoodsForm = false;
       this.GoodsForm = row;
       this.fileList = row.banner
@@ -346,6 +354,17 @@ export default {
       this.queryInfo.type = value;
       this.useGetGoods();
     },
+    // 置顶
+    selectTop(selection, row){
+      console.log(selection, row)
+    },
+    
+    async top(row) {
+      const res = await topGoods(row.id);
+      if (res.code === 200) {
+        this.useGetGoods();
+      }
+    },
   },
 };
 </script>
@@ -364,5 +383,9 @@ export default {
 .page {
   text-align: center;
   margin: 20px 0;
+}
+
+::v-deep .el-table thead .el-table-column--selection .el-checkbox {
+  visibility: hidden;
 }
 </style>

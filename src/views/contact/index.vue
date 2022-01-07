@@ -27,7 +27,6 @@
         <el-form-item label="联系方式">
           <el-input
             v-model="form.message"
-            placeholder="例：李先生：18226939989/王女士：17788884545"
           ></el-input>
         </el-form-item>
         <el-form-item label="荣誉图片上传">
@@ -42,6 +41,7 @@
             :file-list="fileCompListHonorr"
             :http-request="imgRequest"
             :on-exceed="exceedHandle"
+            :on-preview="previewHonor"
             :limit="20"
             multiple
             :headers="{
@@ -139,24 +139,21 @@
             >
           </span>
         </el-dialog>
-        <!-- <el-form-item label="荣誉展示图片">
-          <el-upload
-            class="upload-demo"
-            :action="BASE_API"
-            :on-remove="honorRemove"
-            :before-upload="beforeHonor"
-            :on-error="uploadError"
-            multiple
-            :limit="3"
-             :file-list="fileHonorList"
-            :headers="{ Authorization: token }"
-          >
-            <el-button size="small" type="primary">点击上传</el-button>
-            <div slot="tip" class="el-upload__tip">
-              上传头像图片只能是 jpg、png、jpeg 格式! 且不超过500kb
-            </div>
-          </el-upload>
-        </el-form-item> -->
+        <!-- 荣誉图片展示 -->
+        <el-dialog title="查看" :visible.sync="dialogHonor" width="60%">
+          <span>
+            <el-image
+              style="width: 100%; height: 100%"
+              :src="honorSrc"
+            ></el-image>
+          </span>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogHonor = false">取 消</el-button>
+            <el-button type="primary" @click="dialogHonor = false"
+              >确 定</el-button
+            >
+          </span>
+        </el-dialog>
       </el-form>
     </el-card>
   </div>
@@ -187,9 +184,11 @@ export default {
       fileCompListQr: [],
       fileCompListHonorr: [],
       imgFileList: new FormData(),
-      arr: [],
+      flag: true,
+      honorSrc: '',
       // fileHonorList: [],
       dialogVisible: false,
+      dialogHonor: false
     };
   },
   created() {
@@ -210,7 +209,7 @@ export default {
           .split(",")
           .map((item, index) => {
             return {
-              name: index + 1,
+              name: item,
               url: item,
             };
           });
@@ -259,13 +258,13 @@ export default {
     handlesuccessHonor(res) {},
     handleRemoveHonor() {},
     handleChangeHonor(file, fileList) {
-      console.log(fileList);
+      // console.log(fileList);
       // const reader = new FileReader(); //首先要先定义一下读取文件
       // reader.readAsDataURL(file.raw); // 这里要注意一下：readAsDataURL读取的是blob格式，直接用res会报错，res对象内的raw是我们需要的blob格式的文件
       // // 因为文件读取是一个耗时操作， 所以它要在回调函数中，才能够拿到读取的结果
       // reader.onload = () => {
       //   // reader.result就是转译过后的图片地址
-      //   // this.fileCompListHonorr.push(reader.result);
+      //   this.fileCompListHonorr.push(reader.result);
       // };
       // this.form.honorImgs.push(...this.fileCompListHonorr)
 
@@ -283,19 +282,29 @@ export default {
         return false;
       }
 
-      console.log(this.fileCompListHonorr);
-      fileList.forEach((file) => {
-        if (file.raw !== undefined) {
-          this.imgFileList.append("file", file.raw);
-        }
-      });
+      //   fileList.forEach((file) => {
+      //   if (file.raw !== undefined) {
+      //     this.imgFileList.append("file", file.raw);
+      //   }
+      // });
+
+      // console.log(this.fileCompListHonorr);
+
       // this.arr = _.cloneDeep(this)
     },
-    imgRequest() {
+    imgRequest(file) {
+      // console.log(file)
+      // console.log(this.fileCompListHonorr
+      // )
+      //  fileList.forEach((file) => {
+      //   if (file.raw !== undefined) {
+      //     this.imgFileList.append("file", file.file);
+      //   }
+      // });
       // this.imgFileList.append("file", file.raw)
       // formData数据格式需要append方法传入数据，file.file是传给后端的blob数据
       // 注意：这里要定义一下imgFileList = new FormData()；否则会报错说append is not a function
-      // this.imgFileList.append("file", file.file);
+      this.imgFileList.append("file", file.file);
     },
 
     exceedHandle(files, fileList) {
@@ -305,24 +314,43 @@ export default {
     },
 
     handleRemoveHonor(file, fileList) {
-      console.log(file);
       // console.log(fileList)
       // this.form.honorImgs = fileList
+      this.fileCompListHonorr.forEach((item) => {
+        if (item.url === file.url) {
+          let index = this.form.honorImgs.split(",").indexOf(item.url);
+          this.form.honorImgs = this.form.honorImgs.split(",");
+          this.form.honorImgs.splice(index, 1);
+          this.form.honorImgs = this.form.honorImgs.join(",");
+        }
+      });
     },
 
     async submitUpload() {
-      console.log(this.fileCompListHonorr);
-      // this.$refs.honorRef.submit();
-      const res = await uploadHonorImages(this.imgFileList);
-      if (res.code === 200) {
-        console.log(res.data);
-        this.form.honorImgs = res.data;
-        this.form.honorImgs.push(...this.fileCompListHonorr);
-        this.form.honorImgs = this.form.honorImgs.join(",");
-        this.$message.success("上传服务器成功");
+      console.log(this.imgFileList);
+      if (this.flag) {
+        this.imgFileList = new FormData();
+        this.$refs.honorRef.submit();
+        const res = await uploadHonorImages(this.imgFileList);
+        if (res.code === 200) {
+          // console.log(this.form.honorImgs.split(','));
+          if (typeof res.data === "string") {
+            res.data = res.data.split(",");
+            this.form.honorImgs = this.form.honorImgs.split(",");
+            this.form.honorImgs.unshift(res.data[0]);
+            this.form.honorImgs = this.form.honorImgs.join(",");
+          } else {
+            this.form.honorImgs = this.form.honorImgs.split(",");
+            this.form.honorImgs.unshift(...res.data);
+            this.form.honorImgs = this.form.honorImgs.join(",");
+          }
+          this.flag = !this.flag;
+          this.$message.success("上传服务器成功");
+        } else {
+          this.$message.error("上传服务器失败");
+        }
       } else {
-        this.fileCompListHonorr = [];
-        this.$message.error("上传服务器失败");
+        this.$message.error("请勿重复上传");
       }
     },
 
@@ -345,6 +373,10 @@ export default {
     preview() {
       this.dialogVisible = true;
     },
+    previewHonor(file){
+      this.honorSrc = file.url
+      this.dialogHonor = true
+    }
 
     // honorRemove() {
     //   this.form.honorImg = "";

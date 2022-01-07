@@ -65,3 +65,11 @@ export function deleteGoodsCate(type) {
         data: {type}
     })
 }
+
+export function topGoods(id) {
+    return request({
+        url: '/goods/top',
+        method: "post",
+        data: { id }
+    })
+}
