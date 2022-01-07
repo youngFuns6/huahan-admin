@@ -96,8 +96,8 @@ export default {
     return {
       passwordStatus: false,
       loginForm: {
-        username: "admin",
-        password: "huahan2021",
+        username: "",
+        password: "",
       },
       loginRules: {
         username: [
