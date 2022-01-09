@@ -316,16 +316,18 @@ export default {
       // this.form.honorImgs = fileList
       this.fileCompListHonorr.forEach((item) => {
         if (item.url === file.url) {
-          let index = this.form.honorImgs.split(",").indexOf(item.url);
-          this.form.honorImgs = this.form.honorImgs.split(",");
-          this.form.honorImgs.splice(index, 1);
-          this.form.honorImgs = this.form.honorImgs.join(",");
+          if (this.form.honorImgs) {
+            let index = this.form.honorImgs.split(",").indexOf(item.url);
+            this.form.honorImgs = this.form.honorImgs.split(",");
+            this.form.honorImgs.splice(index, 1);
+            this.form.honorImgs = this.form.honorImgs.join(",");
+          }
         }
       });
     },
 
     async submitUpload() {
-      console.log(this.imgFileList);
+      // console.log(this.imgFileList);
       if (this.flag) {
         this.imgFileList = new FormData();
         this.$refs.honorRef.submit();
@@ -334,13 +336,17 @@ export default {
           // console.log(this.form.honorImgs.split(','));
           if (typeof res.data === "string") {
             res.data = res.data.split(",");
-            this.form.honorImgs = this.form.honorImgs.split(",");
-            this.form.honorImgs.unshift(res.data[0]);
-            this.form.honorImgs = this.form.honorImgs.join(",");
+            if (this.form.honorImgs) {
+              this.form.honorImgs = this.form.honorImgs.split(",");
+              this.form.honorImgs.unshift(res.data[0]);
+              this.form.honorImgs = this.form.honorImgs.join(",");
+            }
           } else {
-            this.form.honorImgs = this.form.honorImgs.split(",");
-            this.form.honorImgs.unshift(...res.data);
-            this.form.honorImgs = this.form.honorImgs.join(",");
+            if (this.form.honorImgs) {
+              this.form.honorImgs = this.form.honorImgs.split(",");
+              this.form.honorImgs.unshift(...res.data);
+              this.form.honorImgs = this.form.honorImgs.join(",");
+            }
           }
           this.flag = !this.flag;
           this.$message.success("上传服务器成功");
