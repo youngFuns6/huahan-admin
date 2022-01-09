@@ -13,8 +13,10 @@
         :label="item.cateName"
       ></el-option>
     </el-select>
-    <el-table :data="list" border stripe @select='selectTop'>
-      <el-table-column label="任选三个置顶" type="selection" width="55">
+    <el-button type="primary" v-if="isShowTopBtn" @click="useTop">置顶</el-button>
+    <el-button type="danger" v-if="isShowCancelTop" @click="useCancelTop">取消重选</el-button>
+    <el-table ref='tableRef' :data="list" border stripe row-key='id' @select='selectTop'>
+      <el-table-column reserve-selection :selectable="isDisabled" type="selection" width="55">
       </el-table-column>
       <el-table-column label="所属分类">
         <template #default="scope">
@@ -179,7 +181,9 @@ export default {
         banner: [{ required: true, message: "必填项", trigger: "change" }],
       },
       isAddGoodsForm: true,
-      selectTopList: null
+      selectTopList: [],
+      isShowTopBtn: false,
+      isShowCancelTop: false
     };
   },
   // filters: {
@@ -356,12 +360,46 @@ export default {
     },
     // 置顶
     selectTop(selection, row){
-      console.log(selection, row)
+      // console.log(selection, row)
+      let index = this.selectTopList.indexOf(row.id)
+      if( index === -1){
+        this.selectTopList.unshift(row.id)
+      }else {
+        this.selectTopList.splice(index, 1)
+      }
+      if(this.selectTopList.length){
+        this.isShowTopBtn = true
+        if(this.selectTopList.length === 5){
+          this.isShowCancelTop = true
+        }else {
+          this.isShowCancelTop = false
+        }
+      }else{
+        this.isShowTopBtn = false
+      }
     },
-    
-    async top(row) {
-      const res = await topGoods(row.id);
+    isDisabled(){
+      if(this.selectTopList.length >= 5){
+        return false
+      }
+      return true
+    },
+
+    // 取消置顶
+    useCancelTop(){
+      this.selectTopList = []
+      this.isDisabled()
+      this.$refs.tableRef.clearSelection()
+      this.isShowCancelTop = false
+    },
+
+    // 确认置顶
+    async useTop() {
+      const res = await topGoods(this.selectTopList);
       if (res.code === 200) {
+        this.useCancelTop()
+        this.isShowTopBtn = false
+        this.$message.success('置顶成功')
         this.useGetGoods();
       }
     },

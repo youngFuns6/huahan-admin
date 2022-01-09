@@ -1,7 +1,11 @@
 <template>
   <el-card>
     <el-button type="primary" @click="dialogVisible = true">新建分类</el-button>
-    <el-table :data="goodsCate" border stripe>
+      <el-button type="primary" v-if="isShowTopBtn" @click="useTop">置顶</el-button>
+    <el-button type="danger" v-if="isShowCancelTop" @click="useCancelTop">取消重选</el-button>
+    <el-table ref='tableRef' :data="goodsCate" border stripe row-key='type' @select='selectTop'>
+       <el-table-column reserve-selection :selectable="isDisabled" type="selection" width="55">
+      </el-table-column>
       <el-table-column label="分类名称" prop="cateName"></el-table-column>
       <el-table-column label="创建时间" prop="created"></el-table-column>
       <el-table-column label="更新时间" prop="updated"></el-table-column>
@@ -79,6 +83,7 @@ import {
   addGoodsCate,
   editGoodsCate,
   deleteGoodsCate,
+  topGoodsCate
 } from "@/api/goods";
 
 export default {
@@ -109,6 +114,9 @@ export default {
           },
         ],
       },
+      selectTopList: [],
+      isShowTopBtn: false,
+      isShowCancelTop: false
     };
   },
   computed: {
@@ -184,6 +192,51 @@ export default {
       this.$message.success("删除产品分类成功");
       this.useGetGoodsCate();
     },
+     // 置顶
+    selectTop(selection, row){
+      // console.log(selection, row)
+      let index = this.selectTopList.indexOf(row.type)
+      if( index === -1){
+        this.selectTopList.unshift(row.type)
+      }else {
+        this.selectTopList.splice(index, 1)
+      }
+      if(this.selectTopList.length){
+        this.isShowTopBtn = true
+        if(this.selectTopList.length === 5){
+          this.isShowCancelTop = true
+        }else {
+          this.isShowCancelTop = false
+        }
+      }else{
+        this.isShowTopBtn = false
+      }
+    },
+    isDisabled(){
+      if(this.selectTopList.length >= 5){
+        return false
+      }
+      return true
+    },
+
+    // 取消置顶
+    useCancelTop(){
+      this.selectTopList = []
+      this.isDisabled()
+      this.$refs.tableRef.clearSelection()
+      this.isShowCancelTop = false
+    },
+
+    // 确认置顶
+    async useTop() {
+      const res = await topGoodsCate(this.selectTopList);
+      if (res.code === 200) {
+        this.useCancelTop()
+        this.isShowTopBtn = false
+        this.$message.success('置顶成功')
+        this.useGetGoodsCate();
+      }
+    },
   },
 };
 </script>
@@ -195,5 +248,8 @@ export default {
 .page {
   text-align: center;
   margin: 20px 0;
+}
+::v-deep .el-table thead .el-table-column--selection .el-checkbox {
+  visibility: hidden;
 }
 </style>

@@ -25,9 +25,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="联系方式">
-          <el-input
-            v-model="form.message"
-          ></el-input>
+          <el-input v-model="form.message"></el-input>
         </el-form-item>
         <el-form-item label="荣誉图片上传">
           <el-upload
@@ -185,10 +183,10 @@ export default {
       fileCompListHonorr: [],
       imgFileList: new FormData(),
       flag: true,
-      honorSrc: '',
+      honorSrc: "",
       // fileHonorList: [],
       dialogVisible: false,
-      dialogHonor: false
+      dialogHonor: false,
     };
   },
   created() {
@@ -204,7 +202,7 @@ export default {
       this.fileCompListQr = res.data.qrCode
         ? [{ name: "微信二维码", url: res.data.qrCode }]
         : [];
-      if (res.data.honorImgs.length) {
+      if (res.data.honorImgs) {
         this.fileCompListHonorr = res.data.honorImgs
           .split(",")
           .map((item, index) => {
@@ -373,10 +371,10 @@ export default {
     preview() {
       this.dialogVisible = true;
     },
-    previewHonor(file){
-      this.honorSrc = file.url
-      this.dialogHonor = true
-    }
+    previewHonor(file) {
+      this.honorSrc = file.url;
+      this.dialogHonor = true;
+    },
 
     // honorRemove() {
     //   this.form.honorImg = "";
