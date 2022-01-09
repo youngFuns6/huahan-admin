@@ -72,7 +72,7 @@ export default {
    },
    handleCurrentChange(page) {
       this.queryInfo.page = page;
-      this.useGetGoods();
+      this.useGetFeedback();
     }
   }
 }

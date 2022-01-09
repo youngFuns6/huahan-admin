@@ -1,9 +1,10 @@
 import request from '@/utils/request'
 
-export function getFeedback() {
+export function getFeedback(queryInfo) {
     return request({
         url: '/feedback',
-        method: 'get'
+        method: 'get',
+        params: queryInfo
     })
 }
 
