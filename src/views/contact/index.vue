@@ -333,20 +333,32 @@ export default {
         this.$refs.honorRef.submit();
         const res = await uploadHonorImages(this.imgFileList);
         if (res.code === 200) {
-          // console.log(this.form.honorImgs.split(','));
           if (typeof res.data === "string") {
             res.data = res.data.split(",");
-            if (this.form.honorImgs) {
-              this.form.honorImgs = this.form.honorImgs.split(",");
+              if (this.form.honorImgs === null) {
+                this.form.honorImgs = "";
+                this.form.honorImgs = this.form.honorImgs.split(",");
+              } else if (this.form.honorImgs === "") {
+                this.form.honorImgs = this.form.honorImgs.split(",");
+                this.form.honorImgs.splice(0, 1);
+              }else {
+                this.form.honorImgs = this.form.honorImgs.split(",");
+              }
               this.form.honorImgs.unshift(res.data[0]);
               this.form.honorImgs = this.form.honorImgs.join(",");
-            }
+           
           } else {
-            if (this.form.honorImgs) {
-              this.form.honorImgs = this.form.honorImgs.split(",");
+              if (this.form.honorImgs === null) {
+                this.form.honorImgs = "";
+                this.form.honorImgs = this.form.honorImgs.split(",");
+              } else if (this.form.honorImgs === "") {
+                this.form.honorImgs = this.form.honorImgs.split(",");
+                this.form.honorImgs.splice(0, 1);
+              }else {
+                this.form.honorImgs = this.form.honorImgs.split(",");
+              }
               this.form.honorImgs.unshift(...res.data);
               this.form.honorImgs = this.form.honorImgs.join(",");
-            }
           }
           this.flag = !this.flag;
           this.$message.success("上传服务器成功");
@@ -372,6 +384,7 @@ export default {
         if (res.code !== 200) return this.$message.error("更改失败");
         this.$message.success("更改成功");
         this.useGetWebInfo();
+        this.flag = true;
       });
     },
     preview() {

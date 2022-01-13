@@ -369,7 +369,7 @@ export default {
       }
       if(this.selectTopList.length){
         this.isShowTopBtn = true
-        if(this.selectTopList.length === 5){
+        if(this.selectTopList.length === 20){
           this.isShowCancelTop = true
         }else {
           this.isShowCancelTop = false
@@ -379,7 +379,7 @@ export default {
       }
     },
     isDisabled(){
-      if(this.selectTopList.length >= 5){
+      if(this.selectTopList.length >= 20){
         return false
       }
       return true
