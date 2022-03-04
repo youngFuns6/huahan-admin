@@ -7,3 +7,11 @@ export function uploadHonorImages(file) {
         data: file
     })
 }
+
+export function uploadSitemap(file) {
+    return request({
+        url: '/upload/sitemap',
+        method: "post",
+        data: file
+    })
+}

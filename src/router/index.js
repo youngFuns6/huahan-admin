@@ -113,6 +113,19 @@ export const constantRoutes = [
     ]
   },
 
+  {
+    path: '/sitemap',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Sitemap',
+        component: () => import('@/views/sitemap/index'),
+        meta: { title: 'sitemap上传', icon: 'form' }
+      }
+    ]
+  },
+
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
