@@ -15,3 +15,12 @@ export function uploadSitemap(file) {
         data: file
     })
 }
+
+// 百度api文章提交
+export function noticeApi(data) {
+    return request({
+        url: '/noticeApi',
+        method: "post",
+        data: data
+    })
+}

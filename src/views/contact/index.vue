@@ -238,6 +238,10 @@ export default {
       //   console.log(file)
     },
     uploadError() {
+      if(JSON.parse(err.message).code === -3006){
+        this.$router.replace('/login')
+        return this.$message.error(JSON.parse(err.message).message)
+      }
       this.$message({
         message: "上传出错，请重试！",
         type: "error",

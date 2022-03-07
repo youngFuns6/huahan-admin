@@ -115,6 +115,7 @@ import {
   editCondition,
   deleteCondition,
 } from "@api/condition";
+import {noticeApi} from '@api/upload'
 import Edit from "@/components/Edit/Edit.vue";
 import { getToken } from "@/utils/auth";
 
@@ -163,7 +164,7 @@ export default {
   methods: {
     async useGetCondition() {
       const res = await getCondition(this.queryInfo);
-      this.list = res.data;
+      this.list = res.data.res;
       this.total = res.total;
     },
     useAddDialog() {
@@ -185,6 +186,11 @@ export default {
           this.$message.success("添加成功");
           this.useGetCondition();
           this.dialogVisible = false;
+          noticeApi({bdToken: 'rGs3BN5KF5tgtKGp', urls: `https://www.czhhhb.com/news/content/condition/${res.data.id}.html`}).then(() => {
+            this.$message.success('提交百度收录成功')
+          }).catch(err => {
+            this.$message.error('提交百度收录失败')
+          })
         });
       } else {
         const res = await editCondition(this.conditionForm);
@@ -258,6 +264,10 @@ export default {
       //   console.log(file)
     },
     uploadError() {
+      if(JSON.parse(err.message).code === -3006){
+        this.$router.replace('/login')
+        return this.$message.error(JSON.parse(err.message).message)
+      }
       this.$message({
         message: "上传出错，请重试！",
         type: "error",

@@ -37,9 +37,10 @@ service.interceptors.request.use(
 // response interceptor
 service.interceptors.response.use(
   response => {
+    console.log(res)
       const res = response.data
       return res
-    // console.log(res)
+    
     // if the custom code is not 20000, it is judged as an error.
     
 
@@ -48,7 +49,8 @@ service.interceptors.response.use(
     // console.log(error)
     console.log('err' + error.response.data.message) // for debug
     Message.error(error.response.data.message)
-
+    console.log(error)
+    console.log('000')
     if (error.response.data.code === -3006) {
       console.log('000')
       VueRouter.replace('/login')
