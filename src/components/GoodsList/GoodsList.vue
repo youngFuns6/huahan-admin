@@ -210,14 +210,14 @@ export default {
       }
       this.total = res.total;
       this.useGetGoodsCate().then((goodsCate) => {
-        res.data.forEach((item) => {
+        res.data.res.forEach((item) => {
           goodsCate.forEach((cate) => {
             if (item.type == cate.type) {
               item.cateName = cate.cateName;
             }
           });
         });
-        this.list = res.data;
+        this.list = res.data.res;
         // console.log(this.list);
       });
     },
