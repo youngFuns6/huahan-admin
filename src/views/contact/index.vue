@@ -119,6 +119,10 @@
             </template>
           </el-upload>
         </el-form-item>
+        <el-form-item label="友情链接">
+          <el-input type="textarea" placeholder="https://www.czhhhb.com,华翰官网
+          一行一个 英文逗号隔开网址与名称" v-model="form.link"></el-input>
+        </el-form-item>
         <div class="btn">
           <el-button type="primary" @click="useEditWebInfo">确定</el-button>
         </div>
