@@ -91,6 +91,18 @@
               </template>
             </el-upload>
           </el-form-item>
+          <el-form-item label="图片描述">
+            <el-input v-model="conditionForm.imgDesc"></el-input>
+          </el-form-item>
+          <el-form-item label="title">
+            <el-input v-model="conditionForm.seoTitle"></el-input>
+          </el-form-item>
+          <el-form-item label="keyWords">
+            <el-input type="textarea" v-model="conditionForm.seoKeywords"></el-input>
+          </el-form-item>
+          <el-form-item label="description">
+            <el-input type="textarea" v-model="conditionForm.seoDesc"></el-input>
+          </el-form-item>
           <el-form-item label="内容">
             <Edit
               @getContent="getContent"
@@ -263,7 +275,8 @@ export default {
       this.conditionForm.banner = response.data;
       //   console.log(file)
     },
-    uploadError() {
+    uploadError(err) {
+      console.log(JSON.parse(err.message).code)
       if(JSON.parse(err.message).code === -3006){
         this.$router.replace('/login')
         return this.$message.error(JSON.parse(err.message).message)
