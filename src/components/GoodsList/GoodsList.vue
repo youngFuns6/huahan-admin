@@ -33,6 +33,10 @@
           ></el-image>
         </template>
       </el-table-column>
+      <el-table-column prop="imgDesc" label="封面描述"></el-table-column>
+      <el-table-column prop="imgDesc" label="title"></el-table-column>
+      <el-table-column prop="seoKeywords" label="keywords"></el-table-column>
+      <el-table-column prop="seoDesc" label="description"></el-table-column>
       <el-table-column label="内容">
         <template #default="scope">
           <span class="content" v-if="scope.row.content">{{
@@ -41,7 +45,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="created" label="创建时间"></el-table-column>
-      <el-table-column prop="updated" label="更新时间"></el-table-column>
+      <!-- <el-table-column prop="updated" label="更新时间"></el-table-column> -->
       <el-table-column label="操作" width="220px">
         <template #default="scope">
           <el-button type="primary" size="mini" @click="useEditGoods(scope.row)"
@@ -119,16 +123,16 @@
             </el-upload>
           </el-form-item>
            <el-form-item label="图片描述">
-            <el-input v-model="conditionForm.imgDesc"></el-input>
+            <el-input v-model="GoodsForm.imgDesc"></el-input>
           </el-form-item>
           <el-form-item label="title">
-            <el-input v-model="conditionForm.seoTitle"></el-input>
+            <el-input v-model="GoodsForm.seoTitle"></el-input>
           </el-form-item>
           <el-form-item label="keyWords">
-            <el-input type="textarea" v-model="conditionForm.seoKeywords"></el-input>
+            <el-input type="textarea" v-model="GoodsForm.seoKeywords"></el-input>
           </el-form-item>
           <el-form-item label="description">
-            <el-input type="textarea" v-model="conditionForm.seoDesc"></el-input>
+            <el-input type="textarea" v-model="GoodsForm.seoDesc"></el-input>
           </el-form-item>
           <el-form-item label="内容">
             <Edit

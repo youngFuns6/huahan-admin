@@ -12,6 +12,10 @@
           ></el-image>
         </template>
       </el-table-column>
+      <el-table-column prop="imgDesc" label="封面描述"></el-table-column>
+      <el-table-column prop="imgDesc" label="title"></el-table-column>
+      <el-table-column prop="seoKeywords" label="keywords"></el-table-column>
+      <el-table-column prop="seoDesc" label="description"></el-table-column>
       <el-table-column label="内容">
         <template #default="scope">
           <span class="content" v-if="scope.row.content">{{
@@ -20,7 +24,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="created" label="创建时间"></el-table-column>
-      <el-table-column prop="updated" label="更新时间"></el-table-column>
+      <!-- <el-table-column prop="updated" label="更新时间"></el-table-column> -->
       <el-table-column label="操作" width="180px">
         <template #default="scope">
           <el-button
