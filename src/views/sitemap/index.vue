@@ -12,7 +12,7 @@
       <i class="el-icon-upload"></i>
       <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
       <div class="el-upload__tip" slot="tip">
-        只能上传文件名为 sitemap.xml 的文件
+        只能上传 xml/txt 类型的文件
       </div>
     </el-upload>
   </div>
