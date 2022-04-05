@@ -33,8 +33,8 @@ export default {
   methods: {
     beforeUpload(file){
       console.log(file)
-      if(file.type !== 'text/xml') {this.$message.error('必须上传xml类型文件'); return false};
-      if(file.name !== 'sitemap.xml') {this.$message.error('文件名必须为sitemap.xml'); return false};
+      if(file.type !== 'text/xml' || file.type !== 'text/txt') {this.$message.error('必须上传xml/txt类型文件'); return false};
+      // if(file.name !== 'sitemap.xml') {this.$message.error('文件名必须为sitemap.xml'); return false};
       return true
     },
     success(res, file, fileList){
