@@ -11,9 +11,7 @@
     >
       <i class="el-icon-upload"></i>
       <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-      <div class="el-upload__tip" slot="tip">
-        只能上传 xml/txt 类型的文件
-      </div>
+      <div class="el-upload__tip" slot="tip">只能上传 xml/txt 类型的文件</div>
     </el-upload>
   </div>
 </template>
@@ -32,10 +30,10 @@ export default {
   },
   methods: {
     beforeUpload(file){
-      console.log(file)
-      if(file.type !== 'text/xml' || file.type !== 'text/txt') {this.$message.error('必须上传xml/txt类型文件'); return false};
+      console.log(file.type)
+      if(file.type === 'text/xml' || file.type === 'text/plain') { return true};
       // if(file.name !== 'sitemap.xml') {this.$message.error('文件名必须为sitemap.xml'); return false};
-      return true
+      return this.$message.error('必须上传xml/txt类型文件');
     },
     success(res, file, fileList){
       this.$message.success('上传成功')
